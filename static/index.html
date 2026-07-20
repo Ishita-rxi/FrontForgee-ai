@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FrontForge AI</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header>
+    <div>
+      <h1>FrontForge AI</h1>
+      <p>Multi-agent frontend generator with an instant style swapper</p>
+    </div>
+    <div class="row">
+      <span id="npm-status" class="badge info">checking host...</span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="tabs">
+      <button data-tab="generate" class="active">Generate</button>
+      <button data-tab="preview">Live Preview</button>
+      <button data-tab="files">Project Files</button>
+      <button data-tab="swap">Style Swapper</button>
+      <button data-tab="review">Review &amp; Export</button>
+      <button data-tab="about">How it works</button>
+      <button data-tab="settings">Settings</button>
+    </nav>
+
+    <main>
+      <!-- Generate -->
+      <section id="tab-generate" class="tab-panel active">
+        <div class="card">
+          <label for="prompt">Describe the app you want</label>
+          <textarea id="prompt" placeholder="e.g. A dashboard for a small gym showing member stats, attendance charts, and a membership plans table."></textarea>
+          <div class="row" style="margin-top:10px;">
+            <button class="primary" id="btn-clarify">Get clarifying questions</button>
+            <button class="secondary" id="btn-skip">Skip clarification, use defaults</button>
+          </div>
+        </div>
+
+        <div id="clarify-card" class="card hidden">
+          <h3>A few quick questions before generation starts</h3>
+          <div id="clarify-questions"></div>
+          <button class="primary" id="btn-generate" style="margin-top:10px;">Generate application</button>
+        </div>
+
+        <div id="generation-progress" class="card hidden">
+          <h3><span id="gen-spinner" class="spinner hidden"></span><span id="gen-status-label">Running agent pipeline...</span></h3>
+          <div id="generation-log"></div>
+        </div>
+
+        <div id="generation-summary" class="card hidden">
+          <h3 id="summary-app-name"></h3>
+          <div class="row">
+            <span class="badge info" id="summary-pages"></span>
+            <span class="badge info" id="summary-components"></span>
+            <span class="badge info" id="summary-clarifications"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Live Preview -->
+      <section id="tab-preview" class="tab-panel">
+        <div class="card">
+          <div class="row" style="justify-content: space-between;">
+            <div>
+              <h3 style="margin:0;">Live preview</h3>
+              <p class="muted">This is the real built app — real router, real chart/animation libraries — served straight from this server.</p>
+            </div>
+            <button class="primary" id="btn-build">Install &amp; build with npm</button>
+          </div>
+          <div id="build-status-box" class="row" style="margin-top:10px;"></div>
+          <pre id="build-log" class="hidden"></pre>
+          <iframe id="preview-frame" class="preview-frame hidden"></iframe>
+        </div>
+      </section>
+
+      <!-- Project Files -->
+      <section id="tab-files" class="tab-panel">
+        <div class="card">
+          <label for="file-select">File</label>
+          <select id="file-select"></select>
+          <pre id="file-content" style="margin-top:12px;"></pre>
+        </div>
+      </section>
+
+      <!-- Style Swapper -->
+      <section id="tab-swap" class="tab-panel">
+        <div class="card">
+          <label for="component-select">Component</label>
+          <select id="component-select"></select>
+          <p class="muted" id="component-current"></p>
+
+          <label>Color theme</label>
+          <div class="grid" id="preset-buttons"></div>
+
+          <label>Shape and elevation</label>
+          <div class="grid" id="variant-buttons"></div>
+
+          <div class="row" style="margin-top: 14px;">
+            <button class="secondary" id="btn-apply-all">Apply current theme to every component</button>
+          </div>
+
+          <label style="margin-top:16px;">Preview (rebuilds automatically)</label>
+          <iframe id="swap-preview-frame" class="preview-frame hidden"></iframe>
+          <pre id="swap-code" style="margin-top:12px;"></pre>
+        </div>
+      </section>
+
+      <!-- Review & Export -->
+      <section id="tab-review" class="tab-panel">
+        <div class="card">
+          <h3>Reviewer Agent report</h3>
+          <div id="static-issues"></div>
+          <p id="review-text" class="muted"></p>
+        </div>
+        <div class="card">
+          <h3>Export</h3>
+          <div class="row">
+            <a id="download-project" href="#"><button class="primary">Download project as .zip</button></a>
+            <a id="download-dist" href="#" class="hidden"><button class="secondary">Download built dist/ as .zip</button></a>
+          </div>
+        </div>
+      </section>
+
+      <!-- About -->
+      <section id="tab-about" class="tab-panel">
+        <div class="card">
+          <h3>Pipeline</h3>
+          <table class="agent-table">
+            <tr><th>Agent</th><th>Job</th></tr>
+            <tr><td>Clarification</td><td>Asks a few targeted questions, falls back to defaults if skipped</td></tr>
+            <tr><td>Planner</td><td>Turns the spec into a page/component/dependency plan</td></tr>
+            <tr><td>UI Architect</td><td>Lays out the folder and file structure</td></tr>
+            <tr><td>Component</td><td>Generates each component's code, using RAG-retrieved docs as context</td></tr>
+            <tr><td>Styling</td><td>Writes the global theme and tags each component with its color preset</td></tr>
+            <tr><td>Package Manager</td><td>Resolves dependencies and writes package.json</td></tr>
+            <tr><td>Reviewer</td><td>Runs static checks and an LLM pass over the generated code</td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <h3>Real build, real preview</h3>
+          <p class="muted">This backend runs on a Docker image with both Python and Node.js, so <code>npm install</code> and <code>npm run build</code> run for real, and the built app is served from this same server under <code>/preview/&lt;session&gt;/</code> — no separate port to expose.</p>
+        </div>
+        <div class="card">
+          <h3>Style swapper</h3>
+          <p class="muted">Swapping a theme replaces the Tailwind color class names already in the generated code (not a re-generation), then triggers a fast rebuild so the real preview reflects it in a few seconds.</p>
+        </div>
+      </section>
+
+      <!-- Settings -->
+      <section id="tab-settings" class="tab-panel">
+        <div class="card">
+          <h3 style="margin-top:0;">LLM provider</h3>
+          <p class="muted" id="provider-status">Checking...</p>
+        </div>
+        <div class="card" id="groq-key-card">
+          <label for="api-key">Groq API key</label>
+          <input type="password" id="api-key" placeholder="Only needed when the provider is Groq and the server has no GROQ_API_KEY configured" />
+          <button class="secondary" id="btn-save-key" style="margin-top:10px;">Save key for this session</button>
+          <p class="muted" id="key-status" style="margin-top:8px;"></p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
