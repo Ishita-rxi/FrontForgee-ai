@@ -3,7 +3,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv()  # picks up GROQ_API_KEY (and anything else) from a local .env file
+load_dotenv()  
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -313,8 +313,5 @@ def download_dist(session_id: str):
     tmp_path.write_bytes(zip_bytes)
     return FileResponse(tmp_path, filename="dist.zip", media_type="application/zip")
 
-
-# ---------------------------------------------------------------------------
 # Frontend (static single page app)
-# ---------------------------------------------------------------------------
 app.mount("/", StaticFiles(directory=str(STATIC_DIR), html=True), name="static")
