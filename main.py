@@ -1,15 +1,3 @@
-"""
-FastAPI backend for FrontForge AI.
-
-Replaces the earlier Streamlit UI. The reasons: Streamlit only exposes
-one port to the outside world and gives no reliable way to guarantee a
-Node.js runtime, both of which get in the way of running and previewing
-the *actual* built React app. A plain backend serving its own static
-frontend, packaged in a Docker image that has Node.js installed
-alongside Python, avoids both problems — npm runs for real, and the
-built app is served from the same origin the rest of the app is on.
-"""
-
 import os
 from pathlib import Path
 
@@ -83,10 +71,7 @@ def _session_or_404(session_id: str) -> dict:
         raise HTTPException(status_code=404, detail="Unknown or expired session")
     return get_session(session_id)
 
-
-# ---------------------------------------------------------------------------
 # Session + settings
-# ---------------------------------------------------------------------------
 @app.post("/api/session")
 def new_session():
     cleanup_old_sessions()
@@ -111,10 +96,7 @@ def llm_status(session_id: str):
     session = _session_or_404(session_id)
     return _llm_status(session)
 
-
-# ---------------------------------------------------------------------------
 # Clarification
-# ---------------------------------------------------------------------------
 class ClarifyIn(BaseModel):
     session_id: str
     prompt: str
@@ -129,10 +111,7 @@ def clarify(body: ClarifyIn):
     session["questions"] = questions
     return {"questions": questions}
 
-
-# ---------------------------------------------------------------------------
 # Generation (background task + polling)
-# ---------------------------------------------------------------------------
 class GenerateIn(BaseModel):
     session_id: str
     prompt: str
@@ -171,10 +150,7 @@ def generate_status(session_id: str):
         response["components"] = list(session["component_meta"].keys())
     return response
 
-
-# ---------------------------------------------------------------------------
 # Files
-# ---------------------------------------------------------------------------
 @app.get("/api/files/{session_id}")
 def list_files(session_id: str):
     session = _session_or_404(session_id)
@@ -188,10 +164,7 @@ def get_file(session_id: str, path: str):
         raise HTTPException(status_code=404, detail="File not found")
     return {"path": path, "content": session["files"][path]}
 
-
-# ---------------------------------------------------------------------------
 # Style swapper
-# ---------------------------------------------------------------------------
 @app.get("/api/presets")
 def presets():
     return {
@@ -250,9 +223,7 @@ def swap_color_all(body: ApplyAllIn):
     return {"ok": True}
 
 
-# ---------------------------------------------------------------------------
 # Real npm install / build (background task + polling)
-# ---------------------------------------------------------------------------
 def _build_task(session: dict):
     workdir = session["workdir"]
 
@@ -300,10 +271,7 @@ def build_status(session_id: str):
         "node_version": node_version(),
     }
 
-
-# ---------------------------------------------------------------------------
 # Preview (serves the real built dist/ output for a session)
-# ---------------------------------------------------------------------------
 @app.get("/preview/{session_id}/")
 @app.get("/preview/{session_id}/{file_path:path}")
 def serve_preview(session_id: str, file_path: str = "index.html"):
@@ -320,10 +288,7 @@ def serve_preview(session_id: str, file_path: str = "index.html"):
         raise HTTPException(status_code=404, detail="File not found in build output.")
     return FileResponse(target)
 
-
-# ---------------------------------------------------------------------------
 # Downloads
-# ---------------------------------------------------------------------------
 @app.get("/download/{session_id}/project.zip")
 def download_project(session_id: str):
     session = _session_or_404(session_id)
