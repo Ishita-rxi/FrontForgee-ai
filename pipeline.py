@@ -67,14 +67,6 @@ def run_generation(session: dict, spec: dict, api_key: str | None):
 
         theme_colors = COLOR_PRESETS.get(spec["theme"], COLOR_PRESETS["Ocean Blue"])
         components_list = plan.get("components", [])
-
-        # Decided before component generation (not after) so components
-        # that genuinely need routing — an internal link, for instance —
-        # can be told react-router-dom will actually be installed. Only
-        # whitelisted names are ever passed on as "available", since
-        # anything else gets silently dropped by the Package Manager
-        # Agent anyway — no point telling Component Agent it can use
-        # something that won't actually be there at build time.
         use_router = len(plan.get("pages", [])) > 1
         if use_router and "react-router-dom" not in plan.get("dependencies", []):
             plan.setdefault("dependencies", []).append("react-router-dom")
@@ -102,14 +94,6 @@ def run_generation(session: dict, spec: dict, api_key: str | None):
 
         emit(f"{AGENT_LABELS['styling']}: writing global theme...")
         files["src/index.css"] = styling_agent.build_global_css(spec["theme"])
-
-        # Safety net: even with the prompt telling it what's available, a
-        # model can still occasionally import something that was never
-        # declared (this is exactly what broke a real build once
-        # already — a component importing react-router-dom that the
-        # plan never listed). Scan what actually got imported and
-        # auto-add anything real and whitelisted that's missing, rather
-        # than letting npm/vite discover it at build time.
         used_libs = set()
         for path, code in files.items():
             if path.endswith((".jsx", ".tsx")):
