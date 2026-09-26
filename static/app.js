@@ -17,12 +17,6 @@ async function api(path, options = {}) {
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
     const message = body.detail || `Request failed: ${res.status}`;
-
-    // The server keeps sessions in memory only. A free-tier host that
-    // spins down after inactivity wipes that memory on wake-up, so a
-    // session id the page is still holding can go stale. Rather than
-    // surface a confusing raw error, recover by starting a new session
-    // and asking the person to retry, once.
     if (res.status === 404 && /session/i.test(message) && !options._retriedAfterSessionReset) {
       await init();
       throw new Error(
@@ -36,9 +30,7 @@ async function api(path, options = {}) {
   return res.json();
 }
 
-// ---------------------------------------------------------------------------
 // Tabs
-// ---------------------------------------------------------------------------
 document.querySelectorAll("nav.tabs button").forEach((btn) => {
   btn.addEventListener("click", () => {
     document.querySelectorAll("nav.tabs button").forEach((b) => b.classList.remove("active"));
@@ -48,9 +40,7 @@ document.querySelectorAll("nav.tabs button").forEach((btn) => {
   });
 });
 
-// ---------------------------------------------------------------------------
 // Init
-// ---------------------------------------------------------------------------
 async function init() {
   const data = await api("/api/session", { method: "POST" });
   state.sessionId = data.session_id;
@@ -83,9 +73,7 @@ async function refreshProviderStatus() {
   document.getElementById("groq-key-card").classList.toggle("hidden", status.provider !== "groq");
 }
 
-// ---------------------------------------------------------------------------
 // Settings
-// ---------------------------------------------------------------------------
 document.getElementById("btn-save-key").addEventListener("click", async () => {
   const key = document.getElementById("api-key").value;
   await api("/api/settings", {
@@ -96,9 +84,7 @@ document.getElementById("btn-save-key").addEventListener("click", async () => {
   await refreshProviderStatus();
 });
 
-// ---------------------------------------------------------------------------
 // Clarification
-// ---------------------------------------------------------------------------
 document.getElementById("btn-clarify").addEventListener("click", async () => {
   const prompt = document.getElementById("prompt").value.trim();
   if (!prompt) return;
@@ -151,9 +137,7 @@ function renderQuestions() {
   document.getElementById("clarify-card").classList.remove("hidden");
 }
 
-// ---------------------------------------------------------------------------
 // Generation
-// ---------------------------------------------------------------------------
 document.getElementById("btn-generate").addEventListener("click", async () => {
   const prompt = document.getElementById("prompt").value.trim();
   const answers = {};
@@ -225,9 +209,7 @@ async function onGenerationComplete(data) {
   document.getElementById("download-project").href = `/download/${state.sessionId}/project.zip`;
 }
 
-// ---------------------------------------------------------------------------
 // Project Files tab
-// ---------------------------------------------------------------------------
 function populateFilesTab() {
   const select = document.getElementById("file-select");
   select.innerHTML = "";
@@ -248,9 +230,7 @@ async function loadSelectedFile() {
   document.getElementById("file-content").textContent = data.content;
 }
 
-// ---------------------------------------------------------------------------
 // Style Swapper tab
-// ---------------------------------------------------------------------------
 function populateSwapTab() {
   const select = document.getElementById("component-select");
   select.innerHTML = "";
@@ -341,9 +321,7 @@ async function triggerSwapRebuild() {
   }, 1000);
 }
 
-// ---------------------------------------------------------------------------
 // Live Preview tab (manual build button)
-// ---------------------------------------------------------------------------
 document.getElementById("btn-build").addEventListener("click", async () => {
   const box = document.getElementById("build-status-box");
   box.innerHTML = '<span class="spinner"></span> Starting build...';
@@ -381,9 +359,7 @@ document.getElementById("btn-build").addEventListener("click", async () => {
   }, 1200);
 });
 
-// ---------------------------------------------------------------------------
 // Review & Export tab
-// ---------------------------------------------------------------------------
 function populateReviewTab(data) {
   const issuesEl = document.getElementById("static-issues");
   if (data.static_issues.length) {
