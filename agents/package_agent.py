@@ -45,18 +45,8 @@ class PackageAgent(BaseAgent):
             if dep in KNOWN_VERSIONS:
                 deps[dep] = KNOWN_VERSIONS[dep]
             elif dep in BASE_DEV_DEPENDENCIES:
-                # Planner sometimes names something (like "tailwindcss")
-                # that's already pinned as a dev dependency in the
-                # scaffold — nothing to add, just skip it quietly.
                 continue
             else:
-                # An LLM can invent a package name that isn't real, or
-                # name a real package we've never vetted a version for.
-                # Installing it at "latest" is exactly what broke a build
-                # once already (a Tailwind/Vite plugin with an
-                # incompatible peer dependency caused an ERESOLVE
-                # failure) — so anything outside the whitelist is
-                # dropped rather than guessed at.
                 skipped.append(dep)
 
         manifest = {
