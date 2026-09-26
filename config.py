@@ -10,9 +10,13 @@ OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2")
 OLLAMA_TIMEOUT_SECONDS = int(os.getenv("OLLAMA_TIMEOUT_SECONDS", "180"))
 
-# Groq (optional cloud fallback) configuration
+# Groq (primary cloud provider) configuration
 GROQ_MODEL = os.getenv("FRONTFORGE_MODEL", "llama-3.3-70b-versatile")
-GROQ_FALLBACK_MODEL = os.getenv("FRONTFORGE_FALLBACK_MODEL", "llama-3.1-8b-instant")
+GROQ_FALLBACK_MODEL = os.getenv("FRONTFORGE_FALLBACK_MODEL", "openai/gpt-oss-20b")
+
+# Gemini (optional cloud provider) configuration
+GEMINI_MODEL = os.getenv("FRONTFORGE_GEMINI_MODEL", "gemini-flash-latest")
+GEMINI_FALLBACK_MODEL = os.getenv("FRONTFORGE_GEMINI_FALLBACK_MODEL", "gemini-2.5-flash")
 
 DEFAULT_TEMPERATURE = 0.4
 MAX_TOKENS = 4096
